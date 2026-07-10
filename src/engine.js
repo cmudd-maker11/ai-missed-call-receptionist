@@ -1,7 +1,7 @@
 // src/engine.js
 import { decide } from './brain/stateMachine.js';
 import { shouldEscalate } from './brain/escalation.js';
-import { extractFieldsFallback, mergeFields, missingFields, checkServiceArea } from './brain/qualify.js';
+import { resolveFields, mergeFields, missingFields, checkServiceArea } from './brain/qualify.js';
 
 const log = (level, msg) =>
   console.log(`[${new Date().toISOString()}] [${level}] [engine] ${msg}`);
@@ -41,10 +41,11 @@ export class ConversationEngine {
     if (!lead || lead.state === 'BOOKED' || lead.state === 'ESCALATED') return;
     this.db.addMessage({ leadId, direction: 'inbound', message: text, state: lead.state });
 
-    // 1. extract + merge fields
+    // 1. extract + merge fields (Claude leads when a key is present; regex backfills)
+    const extracted = await resolveFields({ brain: this.brain, text, services: this.business.services });
     const merged = mergeFields(
       { service_type: lead.service_type, urgency: lead.urgency, zip: lead.zip },
-      extractFieldsFallback(text)
+      extracted
     );
     this.db.setLeadFields(leadId, merged);
 

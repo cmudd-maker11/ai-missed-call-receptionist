@@ -22,6 +22,26 @@ function makeEngine() {
   return { engine, messaging, db };
 }
 
+test('uses Claude extraction when a key is present (non-mock brain)', async () => {
+  const db = openDb(':memory:');
+  const messaging = createMessagingSim({ silent: true });
+  const scheduling = createSchedulingSim(business);
+  // Fake non-mock brain: phrasing falls back to the given fallback; extraction
+  // returns fields the regex could NOT have pulled from the vague message below.
+  const fakeBrain = {
+    isMock: false,
+    generateText: async ({ fallback }) => fallback,
+    extractJSON: async () => ({ service_type: 'heating', urgency: 'routine', zip: '60187' }),
+  };
+  const engine = new ConversationEngine({ business, db, messaging, scheduling, brain: fakeBrain, now: () => new Date('2026-07-10T09:00:00') });
+  const { leadId } = await engine.startCall({ phone: '+16305551111' });
+
+  await engine.handleMessage({ leadId, text: 'hey, can someone come take a look?' });
+  const lead = db.getLead(leadId);
+  assert.equal(lead.service_type, 'heating'); // came from Claude, not the regex
+  assert.equal(lead.state, 'CONFIRM');        // all three fields filled -> slots offered
+});
+
 test('happy path reaches BOOKED and writes a booking', async () => {
   const { engine, messaging, db } = makeEngine();
   const { leadId } = await engine.startCall({ phone: '+16305551234' });

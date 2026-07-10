@@ -15,7 +15,6 @@ Every missed call is a lead that a competitor picks up first. This project is a 
 
 ## Demo
 
-<!-- Record: asciinema/terminal capture of `npm run demo`, save as docs/demo.gif -->
 ![demo](docs/demo.gif)
 
 ```bash

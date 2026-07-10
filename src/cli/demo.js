@@ -14,6 +14,9 @@ const brain = createBrain({ apiKey: cfg.apiKey, model: cfg.model });
 
 const engine = new ConversationEngine({ business: cfg.business, db, messaging, scheduling, brain });
 
+// Small pauses so the transcript reads like a real back-and-forth text thread.
+const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
+
 const CALLER = [
   "Hey, my furnace just quit and there's no heat at all, it's freezing in here",
   "I'm over at 60187",
@@ -29,14 +32,18 @@ const banner = (t) => console.log(`\n=== ${t} ===\n`);
 async function run() {
   banner(`${cfg.business.name} — AI Missed-Call Receptionist ${brain.isMock ? '(mock mode)' : '(live Claude)'}`);
   console.log('  * Ring... ring... missed call. The AI texts the caller back:\n');
+  await sleep(900);
   const { leadId } = await engine.startCall({ phone: '+16305551234' });
 
   for (const line of CALLER) {
+    await sleep(1100);
     console.log('');
     callerLine(line);
+    await sleep(700);
     await engine.handleMessage({ leadId, text: line });
   }
 
+  await sleep(900);
   const booking = db.getBookingByLead(leadId);
   banner('Result');
   if (booking) {

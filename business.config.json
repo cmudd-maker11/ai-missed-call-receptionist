@@ -1,0 +1,10 @@
+{
+  "name": "Comfort Pros Heating & Air",
+  "servedZips": ["60187", "60189", "60188", "60137", "60148"],
+  "services": ["heating", "cooling", "water heater", "thermostat"],
+  "hours": { "start": 8, "end": 17 },
+  "slotMinutes": 120,
+  "daysAhead": 5,
+  "busy": ["2026-07-11T14:00:00"],
+  "tone": "Friendly, brief, professional. You are the after-hours assistant. Never invent pricing, availability, or timelines — a technician confirms pricing on site."
+}

@@ -37,14 +37,13 @@ Runs with no API key in mock mode (deterministic canned replies), so tests and d
 A single conversation engine drives an explicit state machine. Claude phrases each outbound message and helps extract structured fields (service type, urgency, ZIP), with a deterministic keyword fallback so the whole thing still works with no API key.
 
 ```
-GREET ──► QUALIFY ──► OFFER_SLOTS ──► CONFIRM ──► BOOKED
-            │              ▲
-            │              │ (fields complete + missing again)
-            └──────────────┘
-            │
-            ▼ (angry caller, out of service area, asks for a human)
-        ESCALATED
+GREET ──► QUALIFY ──(fields complete, offer open slots)──► CONFIRM ──► BOOKED
+             │
+             ▼ (angry caller, out of service area, asks for a human)
+         ESCALATED
 ```
+
+These are the states actually persisted on the lead (GREET, QUALIFY, CONFIRM, BOOKED, ESCALATED). Offering slots is not its own state, it is the action the engine takes on the QUALIFY-to-CONFIRM transition.
 
 Two adapters keep the engine honest about what's real and what's simulated:
 
@@ -61,6 +60,8 @@ The engine only depends on adapter interfaces, not implementations, so swapping 
 - `src/adapters/scheduling/google.js` is a documented stub for a real calendar. It throws until you wire up the Google Calendar API for `getOpenSlots` and `book`.
 
 Live voice is a planned upgrade through Vapi, layered on top of this same engine. Claude stays the brain either way; Vapi would just replace SMS as the channel that carries the conversation.
+
+`src/config.js` already prepares a persistent SQLite path (`data/receptionist.db`), but the current `demo` and `chat` CLIs both open the database in-memory (`:memory:`). Persistent storage is wired but not yet used, it is waiting on a future entry point.
 
 ## Running the tests
 

@@ -26,6 +26,11 @@ test('missingFields lists still-empty required fields', () => {
   assert.deepEqual(missingFields({ service_type: 'heating', urgency: 'emergency', zip: '60187' }), []);
 });
 
+test('water heater is not misclassified as heating', () => {
+  assert.equal(extractFieldsFallback('my water heater').service_type, 'water heater');
+  assert.equal(extractFieldsFallback('my water heater is busted.').service_type, 'water heater');
+});
+
 test('checkServiceArea', () => {
   assert.equal(checkServiceArea('60187', ['60187', '60189']), true);
   assert.equal(checkServiceArea('99999', ['60187', '60189']), false);

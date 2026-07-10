@@ -53,3 +53,24 @@ test('out-of-area escalates', async () => {
   await engine.handleMessage({ leadId, text: 'no heat, furnace broken, I am at 99999' });
   assert.equal(db.getLead(leadId).state, 'ESCALATED');
 });
+
+test('"not the first one, the second" books the second offered slot', async () => {
+  const { engine, db } = makeEngine();
+  const { leadId } = await engine.startCall({ phone: '+16305551235' });
+  await engine.handleMessage({ leadId, text: 'my furnace died, no heat, freezing' });
+  await engine.handleMessage({ leadId, text: "I'm at 60187" });
+  assert.equal(db.getLead(leadId).state, 'CONFIRM');
+
+  await engine.handleMessage({ leadId, text: "not the first one, let's do the second" });
+  assert.equal(db.getLead(leadId).state, 'BOOKED');
+  const booking = db.getBookingByLead(leadId);
+  const expectedSlot = createSchedulingSim(business)
+    .getOpenSlots({ from: new Date('2026-07-10T09:00:00'), urgency: 'emergency' })[1];
+  assert.equal(booking.slot_start, expectedSlot.start);
+});
+
+test('handleMessage does not throw on undefined text', async () => {
+  const { engine } = makeEngine();
+  const { leadId } = await engine.startCall({ phone: '+16305551236' });
+  await assert.doesNotReject(() => engine.handleMessage({ leadId, text: undefined }));
+});

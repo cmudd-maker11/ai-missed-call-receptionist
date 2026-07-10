@@ -36,6 +36,7 @@ export class ConversationEngine {
   }
 
   async handleMessage({ leadId, text }) {
+    text = String(text ?? '');
     const lead = this.db.getLead(leadId);
     if (!lead || lead.state === 'BOOKED' || lead.state === 'ESCALATED') return;
     this.db.addMessage({ leadId, direction: 'inbound', message: text, state: lead.state });
@@ -59,6 +60,7 @@ export class ConversationEngine {
     if (intent === 'escalate') {
       await this.#say(fresh, `I'm going to have someone from ${this.business.name} reach out to you directly. Thanks for your patience.`, 'ESCALATED');
       this.db.setLeadFields(leadId, { state: 'ESCALATED', status: 'escalated' });
+      this.offered.delete(leadId);
       log('INFO', `Lead ${leadId} escalated`);
       return;
     }
@@ -91,6 +93,7 @@ export class ConversationEngine {
       this.db.createBooking({ leadId, slotStart: booking.start, slotEnd: booking.end, serviceType: merged.service_type });
       await this.#say(fresh, `You're booked for ${chosenSlot.label}. We'll text a reminder. Thanks for choosing ${this.business.name}!`, 'BOOKED');
       this.db.setLeadFields(leadId, { state: 'BOOKED', status: 'booked' });
+      this.offered.delete(leadId);
       log('INFO', `Lead ${leadId} booked ${chosenSlot.start}`);
       return;
     }
@@ -100,9 +103,11 @@ export class ConversationEngine {
     const slots = this.offered.get(leadId) || [];
     if (!slots.length) return null;
     const lower = text.toLowerCase();
-    if (/\bfirst\b|\b1\b|option 1|number 1|the one/.test(lower)) return slots[0];
-    if (/\bsecond\b|\b2\b|option 2|number 2/.test(lower)) return slots[1] || null;
+    // Check higher ordinals first so "not the first, the second" resolves to slot 2.
+    // Note: free-form time parsing ("the 10am one") is intentionally out of scope for v1.
     if (/\bthird\b|\b3\b|option 3|number 3/.test(lower)) return slots[2] || null;
+    if (/\bsecond\b|\b2\b|option 2|number 2/.test(lower)) return slots[1] || null;
+    if (/\bfirst\b|\b1\b|option 1|number 1|the one/.test(lower)) return slots[0];
     // match by day word in a label
     for (const s of slots) {
       const day = s.label.slice(0, 3).toLowerCase();

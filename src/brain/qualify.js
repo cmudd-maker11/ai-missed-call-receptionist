@@ -2,10 +2,10 @@
 const REQUIRED = ['service_type', 'urgency', 'zip'];
 
 const SERVICE_PATTERNS = [
-  [/furnace|no heat|heating|heater(?! )|heat\b/, 'heating'],
-  [/\bac\b|air condition|cooling|a\/c|no cool/, 'cooling'],
   [/water heater/, 'water heater'],
   [/thermostat/, 'thermostat'],
+  [/furnace|no heat|heating|heater|heat\b/, 'heating'],
+  [/\bac\b|air condition|cooling|a\/c|no cool/, 'cooling'],
 ];
 
 const EMERGENCY = /no heat|no cool|not working|won'?t (turn on|start|run)|emergency|leak|flood|smell(s)? gas|freezing|no (ac|a\/c)|stopped (working)?|urgent|asap|today|right now/;

@@ -6,11 +6,13 @@
   "scripts": {
     "test": "node --test",
     "demo": "node src/cli/demo.js",
-    "chat": "node src/cli/chat.js"
+    "chat": "node src/cli/chat.js",
+    "serve": "node web/server.js"
   },
   "dependencies": {
     "@anthropic-ai/sdk": "^0.37.0",
     "better-sqlite3": "^11.0.0",
-    "dotenv": "^16.4.0"
+    "dotenv": "^16.4.0",
+    "express": "^4.21.0"
   }
 }

@@ -31,7 +31,7 @@ The same engine also runs as a hosted web chat.
 npm run serve        # then open http://localhost:3000
 ```
 
-With no API key it runs in mock mode; set `ANTHROPIC_API_KEY` for real Claude. The server is in `web/`: `web/server.js` wraps the existing `ConversationEngine` (no engine changes), a `WebMessagingAdapter` captures the AI's replies per session, and `web/public/` is a no-build vanilla chat UI. Cost is bounded by a per-conversation cap, a per-IP rate limit, and a global daily budget that falls back to a "come back tomorrow" message.
+With no API key it runs in mock mode; set `ANTHROPIC_API_KEY` for real Claude. The server is in `web/`: `web/server.js` wraps the existing `ConversationEngine` (no engine changes), a `WebMessagingAdapter` captures the AI's replies per session, and `web/public/` is a no-build vanilla chat UI. Cost is bounded by four layers: a per-conversation message cap, a per-IP rate limit, a per-IP daily cap (so one visitor cannot drain the budget), and a global daily budget that is the hard ceiling. Once the daily budget is hit, the demo stops calling Claude and shows a "come back tomorrow" message.
 
 Deploying your own: see `web/DEPLOY.md`.
 
@@ -82,7 +82,7 @@ Live voice is a planned upgrade through Vapi, layered on top of this same engine
 npm test
 ```
 
-27 tests cover the state machine transitions, field extraction, service-area checks, scheduling and messaging adapters, the escalation net, the adapter contracts, and a full integration path from missed call to booked appointment.
+42 tests cover the state machine transitions, field extraction, service-area checks, scheduling and messaging adapters, the escalation net, the adapter contracts, a full integration path from missed call to booked appointment, and the web demo server (endpoints and cost controls).
 
 ## Limitations & what's next
 

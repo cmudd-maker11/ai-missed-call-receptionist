@@ -89,3 +89,24 @@ test('oversized input is rejected politely', async () => {
     assert.match(r.replies.join(' ').toLowerCase(), /shorter|too long/);
   });
 });
+
+test('per-IP daily cap stops one visitor without them ending the global budget', async () => {
+  await withServer(makeApp({ maxPerIpPerDay: 1 }), async ({ post }) => {
+    const { sessionId } = await post('/api/start', {}); // consumes the 1 per-IP unit
+    const gated = await post('/api/message', { sessionId, text: 'hello' });
+    assert.match(gated.replies.join(' ').toLowerCase(), /today'?s limit|clone the repo|come back/);
+  });
+});
+
+test('two sessions stay isolated (no cross-session replies)', async () => {
+  await withServer(makeApp(), async ({ post }) => {
+    const a = await post('/api/start', {});
+    const b = await post('/api/start', {});
+    assert.notEqual(a.sessionId, b.sessionId);
+    await post('/api/message', { sessionId: a.sessionId, text: 'no heat furnace dead' });
+    const aReply = await post('/api/message', { sessionId: a.sessionId, text: '60187' });
+    const bReply = await post('/api/message', { sessionId: b.sessionId, text: 'no heat furnace dead' });
+    assert.equal(aReply.state, 'CONFIRM'); // A got as far as slot offering
+    assert.equal(bReply.state, 'QUALIFY'); // B is independent, still qualifying
+  });
+});

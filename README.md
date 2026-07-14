@@ -1,5 +1,7 @@
 # AI Missed-Call Receptionist
 
+**▶ Try it live:** _(deploy to add your URL)_ - a hosted chat where you can talk to the receptionist in your browser.
+
 Texts back missed callers, qualifies the job, and books the appointment.
 
 ## The problem
@@ -20,6 +22,18 @@ Every missed call is a lead that a competitor picks up first. This project is a 
 ```bash
 npm run demo
 ```
+
+## Run the web demo
+
+The same engine also runs as a hosted web chat.
+
+```bash
+npm run serve        # then open http://localhost:3000
+```
+
+With no API key it runs in mock mode; set `ANTHROPIC_API_KEY` for real Claude. The server is in `web/`: `web/server.js` wraps the existing `ConversationEngine` (no engine changes), a `WebMessagingAdapter` captures the AI's replies per session, and `web/public/` is a no-build vanilla chat UI. Cost is bounded by a per-conversation cap, a per-IP rate limit, and a global daily budget that falls back to a "come back tomorrow" message.
+
+Deploying your own: see `web/DEPLOY.md`.
 
 ## Try it yourself
 

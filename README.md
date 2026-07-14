@@ -1,6 +1,6 @@
 # AI Missed-Call Receptionist
 
-**▶ Try it live:** _(deploy to add your URL)_ - a hosted chat where you can talk to the receptionist in your browser.
+**▶ Try it live:** https://web-production-461b8.up.railway.app - a hosted chat where you can talk to the receptionist in your browser.
 
 Texts back missed callers, qualifies the job, and books the appointment.
 

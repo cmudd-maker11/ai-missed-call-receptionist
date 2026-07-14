@@ -1,0 +1,32 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>AI Missed-Call Receptionist — Live Demo</title>
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+  <main class="phone">
+    <header class="bar">
+      <div class="avatar">CP</div>
+      <div class="who">
+        <div class="name">Comfort Pros Heating &amp; Air</div>
+        <div class="sub">AI receptionist · live demo</div>
+      </div>
+    </header>
+    <div class="chip" id="chip">Missed call · the AI is texting you back</div>
+    <section class="thread" id="thread" aria-live="polite"></section>
+    <div class="banner" id="banner" hidden></div>
+    <form class="composer" id="composer">
+      <input id="input" type="text" autocomplete="off" placeholder="Text back like a customer…" aria-label="Your message" />
+      <button id="send" type="submit">Send</button>
+    </form>
+    <p class="note">
+      Live demo running on Claude. The calendar is simulated, so no real appointment is booked.
+      <a href="https://github.com/cmudd-maker11/ai-missed-call-receptionist" target="_blank" rel="noopener noreferrer">See the code</a>.
+    </p>
+  </main>
+  <script src="app.js"></script>
+</body>
+</html>
